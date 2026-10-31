@@ -1,0 +1,66 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: it-asset-manager-db
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-asset_root_password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-it_asset_manager}
+      MYSQL_USER: ${MYSQL_USER:-asset_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-asset_secure_password}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER -p$$MYSQL_PASSWORD || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  it-asset-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: it-asset-manager:latest
+    container_name: it-asset-manager
+    restart: unless-stopped
+    user: "0:0"
+    network_mode: "host"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - PORT=5000
+      - DB_TYPE=mysql
+      - MYSQL_HOST=127.0.0.1
+      - MYSQL_PORT=3306
+      - MYSQL_USER=${MYSQL_USER:-asset_user}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-asset_secure_password}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-it_asset_manager}
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-Kundan@@1231}
+      - SECRET_KEY=${SECRET_KEY:-}
+      - ASSET_API_KEY=${ASSET_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - RESTRICT_PUBLIC_HTTP=${RESTRICT_PUBLIC_HTTP:-true}
+      - ALLOW_LOCAL_IP=${ALLOW_LOCAL_IP:-true}
+      - BIND_HOST=${BIND_HOST:-0.0.0.0}
+      - HOST_LAN_IP=${HOST_LAN_IP:-auto}
+      - LAN_IP=${LAN_IP:-auto}
+    volumes:
+      - ./certs:/app/certs:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:5000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  mysql_data:

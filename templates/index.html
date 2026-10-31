@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IT Asset Manager — Enterprise Hardware & Barcode Inventory</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/app.css?v=1.6">
+  <script>
+    window.SERVER_LAN_IP = "{{ lan_ip }}";
+    window.SERVER_LAN_URL = "{{ lan_url }}";
+  </script>
+</head>
+<body>
+
+  <!-- Toast Notification Container -->
+  <div id="toast" role="alert"></div>
+
+  <div class="app-shell">
+
+    <!-- Fixed Left Navigation Sidebar -->
+    <aside class="app-sidebar" id="appSidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+            <line x1="6" y1="6" x2="6.01" y2="6"></line>
+            <line x1="6" y1="18" x2="6.01" y2="18"></line>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-title">IT Asset Manager</div>
+          <div class="brand-version">Enterprise v2.2</div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Navigation</div>
+        <a class="nav-link active" data-view="dashboard" onclick="switchView('dashboard')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span>Dashboard</span>
+        </a>
+
+        <a class="nav-link" data-view="inventory" onclick="switchView('inventory')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+          <span>Asset Inventory</span>
+          <span class="nav-badge" id="sidebarAssetBadge">0</span>
+        </a>
+
+        <a class="nav-link" data-view="scan" onclick="switchView('scan')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+            <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+            <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+            <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+            <line x1="7" y1="8" x2="7" y2="16"></line>
+            <line x1="11" y1="8" x2="11" y2="16"></line>
+            <line x1="15" y1="8" x2="15" y2="16"></line>
+          </svg>
+          <span>Scan Barcode</span>
+        </a>
+
+        <a class="nav-link" data-view="register" onclick="switchView('register'); clearForm();">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="16"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+          <span>Register Asset</span>
+        </a>
+
+        <div class="nav-section-title" style="margin-top: 14px;">Analytics & System</div>
+
+        <a class="nav-link" data-view="reports" onclick="switchView('reports')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+          </svg>
+          <span>Reports</span>
+        </a>
+
+        <a class="nav-link" data-view="settings" onclick="switchView('settings')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-status">
+          <span class="status-dot"></span>
+          <span style="font-weight: 500; color: #E5E7EB;">Admin: {{ admin_user|default('admin') }}</span>
+        </div>
+        <div style="font-size: 11px; color: #9CA3AF; margin-bottom: 8px;">Authenticated &bull; MySQL Active</div>
+        <button class="btn btn-secondary btn-sm btn-block" style="background: rgba(255,255,255,0.08); color: #E5E7EB; border-color: rgba(255,255,255,0.15);" onclick="openAgentModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 12px; height: 12px;"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+          <span>Remote Agent</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <div class="app-main">
+
+      <!-- Topbar Header -->
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" onclick="toggleMobileSidebar()" aria-label="Toggle navigation">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+          <div class="breadcrumb-trail">
+            <span>IT Asset Management</span>
+            <span>/</span>
+            <span class="breadcrumb-active" id="activeBreadcrumb">Dashboard</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <button class="btn btn-secondary btn-sm" onclick="switchView('scan')" title="Open scanner workspace">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path></svg>
+            <span>Scan Barcode</span>
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="switchView('register'); clearForm();">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>Add Asset</span>
+          </button>
+          <div class="admin-user-pill">
+            <span class="user-status-dot"></span>
+            <span class="user-name-text">{{ admin_user|default('admin') }}</span>
+            <a href="/logout" class="btn-logout" title="Sign out of Administrator session">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 12px; height: 12px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+              <span>Logout</span>
+            </a>
+          </div>
+        </div>
+      </header>
+
+      <!-- Views Container -->
+      <main class="app-content">
+
+        <!-- ================================================================ -->
+        <!-- VIEW 1: DASHBOARD                                                -->
+        <!-- ================================================================ -->
+        <section id="view-dashboard" class="app-view active">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Dashboard</h1>
+              <p class="page-subtitle">Real-time overview of organization hardware inventory, deployment status, and recent activity.</p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-secondary btn-sm" onclick="loadStats(); loadRecentAssets();">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                <span>Refresh</span>
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="downloadExcel()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <span>Export (.xlsx)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- KPI Metric Cards -->
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-label">Total Assets</span>
+                <div class="kpi-icon-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect></svg>
+                </div>
+              </div>
+              <div class="kpi-value" id="statTotal">0</div>
+              <div class="kpi-subtext">All registered hardware</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-label">Available</span>
+                <div class="kpi-icon-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                </div>
+              </div>
+              <div class="kpi-value" id="statAvailable">0</div>
+              <div class="kpi-subtext">Ready for deployment</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-label">Assigned</span>
+                <div class="kpi-icon-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
+              </div>
+              <div class="kpi-value" id="statAssigned">0</div>
+              <div class="kpi-subtext">In active employee use</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-label">In Repair</span>
+                <div class="kpi-icon-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                </div>
+              </div>
+              <div class="kpi-value" id="statRepair">0</div>
+              <div class="kpi-subtext">Maintenance queue</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-label">Retired</span>
+                <div class="kpi-icon-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
+                </div>
+              </div>
+              <div class="kpi-value" id="statRetired">0</div>
+              <div class="kpi-subtext">Decommissioned items</div>
+            </div>
+          </div>
+
+          <!-- Dashboard Content 2-Column Grid -->
+          <div class="grid-dashboard">
+            <!-- Left: Recently Added Assets Table -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  <span>Recently Added Assets</span>
+                </div>
+                <a href="#inventory" onclick="switchView('inventory')" style="font-size: 12.5px; font-weight: 500; color: var(--primary); text-decoration: none;">
+                  View All Assets &rarr;
+                </a>
+              </div>
+              <div class="table-container" style="border: none; border-radius: 0;">
+                <table class="enterprise-table">
+                  <thead>
+                    <tr>
+                      <th>Serial / S/N</th>
+                      <th>Device & Model</th>
+                      <th>Category</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboardRecentTableBody">
+                    <tr>
+                      <td colspan="5" style="text-align: center; padding: 24px; color: var(--text-secondary);">
+                        Loading recent assets...
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Right Column: Operational Summaries & Quick Scanning -->
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+
+              <!-- Asset Status Overview Breakdown Card -->
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <span>Asset Status Overview</span>
+                  </div>
+                  <a href="#reports" onclick="switchView('reports')" style="font-size: 12px; font-weight: 500; color: var(--primary); text-decoration: none;">Reports &rarr;</a>
+                </div>
+                <div class="card-body">
+                  <div class="status-overview-bar" id="dashboardStatusBar">
+                    <div class="status-segment seg-available" id="segAvailable" style="width: 0%;" title="Available"></div>
+                    <div class="status-segment seg-assigned" id="segAssigned" style="width: 0%;" title="Assigned"></div>
+                    <div class="status-segment seg-repair" id="segRepair" style="width: 0%;" title="In Repair"></div>
+                    <div class="status-segment seg-retired" id="segRetired" style="width: 0%;" title="Retired"></div>
+                  </div>
+                  <div class="status-legend-grid">
+                    <div class="status-legend-item">
+                      <span class="status-legend-dot seg-available"></span>
+                      <span class="status-legend-name">Available</span>
+                      <span class="status-legend-val" id="legendAvailable">0</span>
+                    </div>
+                    <div class="status-legend-item">
+                      <span class="status-legend-dot seg-assigned"></span>
+                      <span class="status-legend-name">Assigned</span>
+                      <span class="status-legend-val" id="legendAssigned">0</span>
+                    </div>
+                    <div class="status-legend-item">
+                      <span class="status-legend-dot seg-repair"></span>
+                      <span class="status-legend-name">In Repair</span>
+                      <span class="status-legend-val" id="legendRepair">0</span>
+                    </div>
+                    <div class="status-legend-item">
+                      <span class="status-legend-dot seg-retired"></span>
+                      <span class="status-legend-name">Retired</span>
+                      <span class="status-legend-val" id="legendRetired">0</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Quick Hardware Scanner Card -->
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path></svg>
+                    <span>Quick Barcode & Label Scanner</span>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.45;">
+                    Scan existing hardware barcodes or upload physical backplate photos with automated detail extraction.
+                  </p>
+                  <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <button class="btn btn-primary" onclick="switchView('scan'); startCamera();">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                      <span>Open Live Camera Scanner</span>
+                    </button>
+                    <label class="btn btn-secondary" style="cursor: pointer; margin: 0;">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                      <span>Upload Sticker / Barcode Photo</span>
+                      <input type="file" accept="image/*" style="display: none;" onchange="switchView('scan'); scanBarcodeFromFile(event);">
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- VIEW 2: ASSET INVENTORY (FULL-WIDTH DATA TABLE)                  -->
+        <!-- ================================================================ -->
+        <section id="view-inventory" class="app-view">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Asset Inventory</h1>
+              <p class="page-subtitle">Search, filter, edit, and track the complete organizational hardware catalog.</p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-secondary btn-sm" onclick="loadAssets()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                <span>Refresh</span>
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="downloadExcel()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <span>Export Excel (.xlsx)</span>
+              </button>
+              <button class="btn btn-primary btn-sm" onclick="switchView('register'); clearForm();">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>Add Asset</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Search & Filter Controls Toolbar -->
+          <div class="filter-toolbar">
+            <div class="filter-group-left">
+              <div class="search-input-wrap">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="searchInput" class="form-control" placeholder="Search by serial, service tag, model, employee, or department..." oninput="handleSearchInput()">
+              </div>
+              <select id="typeFilterSelect" class="form-control" style="width: 155px; flex-shrink: 0;" onchange="setTypeFilter(this.value)">
+                <option value="All">All Categories</option>
+                <option value="Laptop">Laptops</option>
+                <option value="Desktop">Desktops</option>
+                <option value="Phone">Phones</option>
+                <option value="Headphone">Headphones</option>
+                <option value="Keyboard">Keyboards</option>
+                <option value="Mouse">Mouse</option>
+                <option value="Server">Servers</option>
+                <option value="Network">Network</option>
+                <option value="Monitor">Monitors</option>
+                <option value="Printer">Printers</option>
+                <option value="Audio / Conference">Audio / Conference</option>
+                <option value="Tablet">Tablets</option>
+                <option value="Other">Other</option>
+              </select>
+              <select id="osFilterSelect" class="form-control" style="width: 160px; flex-shrink: 0;" onchange="setOsFilter(this.value)">
+                <option value="All">All Operating Systems</option>
+                <option value="Ubuntu">Ubuntu / Linux</option>
+                <option value="Windows">Windows</option>
+                <option value="macOS">macOS (Apple)</option>
+              </select>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div class="filter-pills">
+                <button class="pill-btn active" data-status="All" onclick="setFilter('All')">All</button>
+                <button class="pill-btn" data-status="Available" onclick="setFilter('Available')">Available</button>
+                <button class="pill-btn" data-status="Assigned" onclick="setFilter('Assigned')">Assigned</button>
+                <button class="pill-btn" data-status="In Repair" onclick="setFilter('In Repair')">In Repair</button>
+                <button class="pill-btn" data-status="Retired" onclick="setFilter('Retired')">Retired</button>
+              </div>
+              <span id="inventoryCount" style="font-size: 12px; color: var(--text-secondary); white-space: nowrap;">Loading...</span>
+            </div>
+          </div>
+
+          <!-- Enterprise Data Table -->
+          <div class="table-container">
+            <table class="enterprise-table">
+              <thead>
+                <tr>
+                  <th class="inv-col-id" style="text-align: center;">ID</th>
+                  <th class="inv-col-serial">Serial / Service Tag</th>
+                  <th class="inv-col-device">Device / Model</th>
+                  <th class="inv-col-os">Operating System</th>
+                  <th class="inv-col-mac">MAC Address</th>
+                  <th class="inv-col-specs">Hardware Specs</th>
+                  <th class="inv-col-assign">Assignment</th>
+                  <th class="inv-col-status" style="text-align: center;">Status</th>
+                  <th class="inv-col-actions" style="text-align: right; padding-right: 12px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="inventoryTableBody">
+                <tr>
+                  <td colspan="9" style="text-align: center; padding: 40px; color: var(--text-secondary);">
+                    Connecting to inventory database...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- VIEW 3: SCAN BARCODE (DEDICATED 2-COLUMN WORKSPACE)              -->
+        <!-- ================================================================ -->
+        <section id="view-scan" class="app-view">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Scan Barcode & Hardware Labels</h1>
+              <p class="page-subtitle">Scan device barcodes or physical backplate stickers with camera or image upload. Details auto-enrich with zero API key.</p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-secondary btn-sm" onclick="switchView('inventory')">
+                <span>View Inventory</span>
+              </button>
+              <button class="btn btn-primary btn-sm" onclick="switchView('register'); clearForm();">
+                <span>Manual Entry</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="grid-2col">
+            <!-- Left: Camera Preview & Scanning Controls -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                  <span>Camera & Optical Scanner</span>
+                </div>
+                <div style="display: flex; gap: 6px;">
+                  <button class="btn btn-primary btn-sm" id="btnToggleCamera" onclick="toggleCamera()">
+                    <span>Start Camera Scan</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="card-body" style="display: flex; flex-direction: column; gap: 14px;">
+                <!-- Camera Device Selector -->
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <select id="cameraSelect" class="form-control" style="font-size: 12.5px;" onchange="switchCamera(this.value)">
+                    <option value="">Detecting Cameras...</option>
+                  </select>
+                </div>
+
+                <!-- Camera Viewport Box -->
+                <div class="scanner-viewport-box" id="scanner-viewport">
+                  <div id="reader"></div>
+                  <div class="scanner-overlay-aim">
+                    <div class="scanner-laser"></div>
+                  </div>
+                </div>
+
+                <!-- Snapshot Frame Button -->
+                <button id="btnCaptureFrame" class="btn btn-secondary btn-sm" style="display: none; width: 100%; font-weight: 600;" onclick="captureCameraSnapshot()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
+                  <span>Snapshot & AI Scan This Device Label</span>
+                </button>
+
+                <!-- Auto-Fill Toggle -->
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-main); cursor: pointer; user-select: none;">
+                  <input type="checkbox" id="autoFillOnScanToggle" checked style="width: 16px; height: 16px; accent-color: var(--primary);">
+                  <span>Auto-fetch hardware specs and populate form upon scan</span>
+                </label>
+
+                <!-- Drag & Drop Photo Upload Zone -->
+                <div class="dropzone-box" id="fileDropzone" onclick="$('fileScanInput').click()">
+                  <input type="file" id="fileScanInput" accept="image/*" style="display: none;" onchange="scanBarcodeFromFile(event)">
+                  <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                    <polyline points="21 15 16 10 5 21"></polyline>
+                  </svg>
+                  <div style="font-size: 13.5px; font-weight: 600; color: var(--text-main);">Upload Barcode / Hardware Label Photo</div>
+                  <div style="font-size: 12px; color: var(--text-secondary); margin-top: 3px;">
+                    Click to select or drag and drop any hardware sticker photo
+                  </div>
+                </div>
+
+                <!-- Manual Serial / Service Tag Lookup -->
+                <div style="padding-top: 8px; border-top: 1px solid var(--border-color);">
+                  <div class="form-label" style="margin-bottom: 6px;">Manual Serial Number / Service Tag Lookup</div>
+                  <div class="input-with-action">
+                    <input type="text" id="quickBarcodeInput" class="form-control" placeholder="Enter Serial Number or Dell Service Tag...">
+                    <button class="btn btn-secondary" onclick="$('serial_number').value=$('quickBarcodeInput').value; $('barcode').value=$('quickBarcodeInput').value; lookupBarcode();">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                      <span>Lookup</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- AI Multi-Brand Spec Extractor -->
+                <div style="padding-top: 8px; border-top: 1px solid var(--border-color);">
+                  <div class="form-label" style="margin-bottom: 6px;">AI Multi-Brand Spec Extractor (Zero API Key)</div>
+                  <textarea id="aiTextInput" class="form-control" rows="2" placeholder="Paste any hardware model, sticker text, or specs (e.g. 'ThinkPad T14 Gen 2 i7 16GB 512GB' or 'MacBook Pro A2338')..."></textarea>
+                  <button type="button" class="btn btn-secondary btn-sm" style="width: 100%; margin-top: 8px;" onclick="runAiInference()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 13px; height: 13px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    <span>Extract Specifications with AI</span>
+                  </button>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Right: Live Scan Inspector & Action Card -->
+            <div class="card" id="scanInspectorCard">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                  <span>Detected Hardware Details</span>
+                </div>
+                <span class="badge-status available" id="inspectorConfidenceBadge" style="display: none;">
+                  <span class="dot"></span> <span id="inspectorConfidenceText">AI Matched</span>
+                </span>
+              </div>
+
+              <div class="card-body">
+                <!-- Empty State Placeholder -->
+                <div id="inspectorEmptyState" style="text-align: center; padding: 40px 20px; color: var(--text-secondary);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width: 44px; height: 44px; color: var(--text-muted); margin-bottom: 12px;"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+                  <div style="font-weight: 600; font-size: 14px; color: var(--text-main); margin-bottom: 4px;">Scanner Ready</div>
+                  <div style="font-size: 13px; max-width: 320px; margin: 0 auto; line-height: 1.45;">
+                    Point your camera at a barcode, upload a photo of a device sticker, or enter a serial number on the left.
+                  </div>
+                </div>
+
+                <!-- Populated Inspector Content -->
+                <div id="inspectorActiveContent" style="display: none;">
+                  <div style="margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border-color);">
+                    <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); font-weight: 600;">Identified Device</div>
+                    <div style="font-size: 18px; font-weight: 700; color: var(--text-main); margin-top: 2px;" id="inspDeviceTitle">—</div>
+                    <div style="font-size: 12.5px; color: var(--text-secondary); margin-top: 2px;" id="inspCategoryTitle">—</div>
+                  </div>
+
+                  <div style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 20px;">
+                    <div class="inspector-spec-row">
+                      <span class="inspector-label">Serial Number</span>
+                      <span class="inspector-val code-badge" id="inspSerial">—</span>
+                    </div>
+                    <div class="inspector-spec-row">
+                      <span class="inspector-label">Manufacturer</span>
+                      <span class="inspector-val" id="inspMfg">—</span>
+                    </div>
+                    <div class="inspector-spec-row">
+                      <span class="inspector-label">Model</span>
+                      <span class="inspector-val" id="inspModel">—</span>
+                    </div>
+                    <div class="inspector-spec-row">
+                      <span class="inspector-label">Product / SKU Code</span>
+                      <span class="inspector-val" id="inspProductCode">—</span>
+                    </div>
+                    <div class="inspector-spec-row">
+                      <span class="inspector-label">Processor (CPU)</span>
+                      <span class="inspector-val" id="inspCpu">—</span>
+                    </div>
+                    <div class="inspector-spec-row">
+                      <span class="inspector-label">Memory (RAM)</span>
+                      <span class="inspector-val" id="inspRam">—</span>
+                    </div>
+                    <div class="inspector-spec-row">
+                      <span class="inspector-label">Storage</span>
+                      <span class="inspector-val" id="inspStorage">—</span>
+                    </div>
+                    <div class="inspector-spec-row">
+                      <span class="inspector-label">Operating System</span>
+                      <span class="inspector-val" id="inspOs">—</span>
+                    </div>
+                  </div>
+
+                  <div id="inspNotesBox" style="font-size: 12px; color: var(--text-secondary); background: var(--bg-app); border: 1px solid var(--border-color); padding: 10px 12px; border-radius: var(--radius-md); margin-bottom: 18px; line-height: 1.45;"></div>
+
+                  <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-primary" style="flex: 1;" onclick="switchView('register')">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                      <span>Review in Registration Form</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearInspector()">
+                      <span>Clear</span>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- VIEW 4: REGISTER ASSET (DEDICATED FORM WORKSPACE)                -->
+        <!-- ================================================================ -->
+        <section id="view-register" class="app-view">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title" id="formHeaderTitle">Register Asset</h1>
+              <p class="page-subtitle">Add or modify hardware specifications, user assignment, and inventory details.</p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-secondary btn-sm" type="button" onclick="clearForm()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                <span>Clear Form</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Auto-Source Information Alert -->
+          <div id="autoSource" class="auto-source-alert" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            <span id="autoSourceText">Auto-detected from local hardware specifications</span>
+          </div>
+
+          <div class="card">
+            <div class="card-body">
+              <form id="assetForm">
+                <input type="hidden" id="assetId">
+                <input type="hidden" id="barcode">
+                <input type="hidden" id="barcode_format" value="CODE128">
+
+                <!-- Section 1: Device Identification -->
+                <div class="form-section">
+                  <div class="form-section-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 15px; height: 15px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <span>1. Device Identification</span>
+                  </div>
+                  <div class="form-grid-3">
+                    <div class="form-group">
+                      <label class="form-label" for="serial_number">
+                        <span>Serial Number / Service Tag <span class="req">*</span></span>
+                      </label>
+                      <div class="input-with-action">
+                        <input type="text" id="serial_number" class="form-control" required placeholder="e.g. 7XG3Y92, 5CD..., PF2..." oninput="$('barcode').value=this.value;">
+                        <button type="button" class="btn btn-secondary" onclick="lookupBarcode()" title="Lookup specs">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                          <span>Lookup</span>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="device_name">Device Name / Hostname</label>
+                      <input type="text" id="device_name" class="form-control" placeholder="e.g. zapoffice1, DESKTOP-PC">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="product_code">Product Code / SKU / Express Code</label>
+                      <input type="text" id="product_code" class="form-control" placeholder="Optional SKU, part number, or Express code">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="asset_type">Device Category</label>
+                      <select id="asset_type" class="form-control">
+                        <option value="Laptop">Laptop / Notebook</option>
+                        <option value="Desktop">Desktop / Workstation</option>
+                        <option value="Phone">Phone</option>
+                        <option value="Headphone">Headphone</option>
+                        <option value="Keyboard">Keyboard</option>
+                        <option value="Mouse">Mouse</option>
+                        <option value="Server">Server / Rack</option>
+                        <option value="Network">Network / Switch / Router</option>
+                        <option value="Monitor">Monitor / Display</option>
+                        <option value="Printer">Printer / Scanner</option>
+                        <option value="Audio / Conference">Audio / Conference</option>
+                        <option value="Tablet">Tablet / Mobile</option>
+                        <option value="Other">Other Peripheral</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="manufacturer">Manufacturer</label>
+                      <input type="text" id="manufacturer" class="form-control" placeholder="e.g. Dell Inc., HP, Lenovo, Apple, Avaya">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="model">Model Name</label>
+                      <input type="text" id="model" class="form-control" placeholder="e.g. Latitude 5420, ThinkPad T14, B109">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Section 2: Hardware Specifications -->
+                <div class="form-section">
+                  <div class="form-section-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 15px; height: 15px;"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+                    <span>2. Hardware Specifications</span>
+                  </div>
+                  <div class="form-grid-3">
+                    <div class="form-group">
+                      <label class="form-label" for="cpu">Processor (CPU)</label>
+                      <input type="text" id="cpu" class="form-control" placeholder="e.g. Intel Core i5-1135G7, Apple M2">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="ram">Memory (RAM)</label>
+                      <input type="text" id="ram" class="form-control" placeholder="e.g. 16 GB DDR4, 8 GB Unified">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="storage">Storage Capacity (SSD/HDD)</label>
+                      <input type="text" id="storage" class="form-control" placeholder="e.g. 512 GB NVMe SSD">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="motherboard">Motherboard / Mainboard</label>
+                      <input type="text" id="motherboard" class="form-control" placeholder="e.g. Dell Inc. 04HG7M, ASUS B550">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                      <label class="form-label" for="os_name">Operating System</label>
+                      <input type="text" id="os_name" class="form-control" placeholder="e.g. Ubuntu 24.04 LTS, Windows 11 Pro, macOS Sonoma">
+                    </div>
+                  </div>
+
+                  <!-- Granular Component Details Sub-Grid -->
+                  <div style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border-color);">
+                    <div style="font-size: 11.5px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 10px;">
+                      Granular Component Serials &amp; Hardware Details
+                    </div>
+                    <div class="form-grid-3">
+                      <div class="form-group">
+                        <label class="form-label" for="motherboard_mfg">Motherboard Manufacturer</label>
+                        <input type="text" id="motherboard_mfg" class="form-control" placeholder="e.g. Dell Inc., HP, ASUS">
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="motherboard_product">Motherboard Product</label>
+                        <input type="text" id="motherboard_product" class="form-control" placeholder="e.g. 07T00N, B550M">
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="motherboard_serial">Motherboard Serial No.</label>
+                        <input type="text" id="motherboard_serial" class="form-control" placeholder="Board S/N or Service Tag">
+                      </div>
+
+                      <div class="form-group">
+                        <label class="form-label" for="ram_vendor">RAM Vendor</label>
+                        <input type="text" id="ram_vendor" class="form-control" placeholder="e.g. Micron, Samsung, SK Hynix">
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="ram_size">RAM Size</label>
+                        <input type="text" id="ram_size" class="form-control" placeholder="e.g. 16 GB">
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="ram_serial">RAM Serial No.</label>
+                        <input type="text" id="ram_serial" class="form-control" placeholder="RAM Module S/N">
+                      </div>
+
+                      <div class="form-group">
+                        <label class="form-label" for="storage_vendor">Storage Vendor</label>
+                        <input type="text" id="storage_vendor" class="form-control" placeholder="e.g. Micron, Samsung, WD">
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="storage_model">Storage Model</label>
+                        <input type="text" id="storage_model" class="form-control" placeholder="e.g. Micron 2210S NVMe 512GB">
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label" for="storage_serial">Storage Serial No.</label>
+                        <input type="text" id="storage_serial" class="form-control" placeholder="Disk Hardware Serial">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Section 3: Assignment & Location -->
+                <div class="form-section">
+                  <div class="form-section-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 15px; height: 15px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    <span>3. Assignment & Location</span>
+                  </div>
+                  <div class="form-grid-3">
+                    <div class="form-group">
+                      <label class="form-label" for="status">Asset Status</label>
+                      <select id="status" class="form-control">
+                        <option value="Available">Available (In Stock)</option>
+                        <option value="Assigned">Assigned (In Use)</option>
+                        <option value="In Repair">In Repair</option>
+                        <option value="Retired">Retired</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="assigned_to">Assigned Employee</label>
+                      <input type="text" id="assigned_to" class="form-control" placeholder="Employee Name / Email">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="department">Department</label>
+                      <input type="text" id="department" class="form-control" placeholder="e.g. Engineering, Sales, IT">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="location">Location / Office</label>
+                      <input type="text" id="location" class="form-control" placeholder="e.g. Floor 2, HQ Office">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="ip_address">IP Address</label>
+                      <input type="text" id="ip_address" class="form-control" placeholder="e.g. 192.168.1.100">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="mac_address">MAC Address</label>
+                      <input type="text" id="mac_address" class="form-control" placeholder="e.g. 00:1A:2B:3C:4D:5E">
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Section 4: Notes -->
+                <div class="form-section">
+                  <div class="form-section-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 15px; height: 15px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                    <span>4. Additional Remarks & Condition</span>
+                  </div>
+                  <div class="form-group full-width">
+                    <textarea id="notes" class="form-control" rows="2" placeholder="Purchase date, warranty duration, peripheral accessories, or physical condition remarks..."></textarea>
+                  </div>
+                </div>
+
+                <!-- Form Submit Actions -->
+                <div style="display: flex; gap: 10px; align-items: center; justify-content: flex-start; flex-wrap: wrap;">
+                  <button type="submit" class="btn btn-primary" id="btnSaveAsset" style="min-width: 190px; font-weight: 600; padding: 8px 18px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                    <span>Save Asset to Inventory</span>
+                  </button>
+                  <button type="button" class="btn btn-secondary" onclick="clearForm()">
+                    <span>Clear Form</span>
+                  </button>
+                  <button type="button" class="btn btn-outline" onclick="switchView('inventory')">
+                    <span>Cancel & Return</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- VIEW 5: REPORTS & DATA EXPORT                                    -->
+        <!-- ================================================================ -->
+        <section id="view-reports" class="app-view">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Reports & Data Export</h1>
+              <p class="page-subtitle">Export full inventory datasets and review real-time hardware status breakdowns.</p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-primary btn-sm" onclick="downloadExcel()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <span>Download Excel Report (.xlsx)</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="grid-2col" style="margin-bottom: 20px;">
+            <!-- Export Card -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                  <span>Complete Inventory Export</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5;">
+                  Generates an Excel spreadsheet (<code>.xlsx</code>) containing all registered devices, serial numbers, processors, memory, storage, assigned employees, departments, and operational statuses.
+                </p>
+                <button class="btn btn-primary" onclick="downloadExcel()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  <span>Export Excel Spreadsheet (.xlsx)</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Status Breakdown Summary -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  <span>Status Allocation Breakdown</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="table-container" style="border: none;">
+                  <table class="enterprise-table">
+                    <thead>
+                      <tr>
+                        <th>Status</th>
+                        <th>Device Count</th>
+                        <th>Share (%)</th>
+                      </tr>
+                    </thead>
+                    <tbody id="reportStatusTableBody">
+                      <tr><td colspan="3" style="text-align: center; color: var(--text-secondary);">Calculating allocation...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category & Manufacturer Distribution -->
+          <div class="grid-2col">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect></svg>
+                  <span>Devices by Category</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <div id="reportCategoryList" style="display: flex; flex-direction: column; gap: 8px;">
+                  <div style="color: var(--text-secondary); font-size: 13px;">Loading categories...</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  <span>Devices by Manufacturer</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <div id="reportManufacturerList" style="display: flex; flex-direction: column; gap: 8px;">
+                  <div style="color: var(--text-secondary); font-size: 13px;">Loading manufacturers...</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- VIEW 6: SETTINGS & REMOTE ENROLLMENT                             -->
+        <!-- ================================================================ -->
+        <section id="view-settings" class="app-view">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Settings & Remote Discovery</h1>
+              <p class="page-subtitle">System configuration, network agent enrollment, and database environment status.</p>
+            </div>
+          </div>
+
+          <div class="grid-2col">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                  <span>Remote Hardware Discovery Agent (macOS, Linux & Windows)</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px;">
+                  Run a 1-line command on <strong>any remote laptop or desktop</strong>. The agent automatically queries Motherboard/Logic Board, Processor, RAM, physical SSD/NVMe drives, Serial Number, Device Hostname, and logged-in User Name, storing them straight into this database:
+                </p>
+
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 5px; display: flex; align-items: center; gap: 6px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.64-.78 1.08-1.86.96-2.95-1 .04-2.16.67-2.85 1.48-.61.71-1.14 1.83-1 2.91 1.12.09 2.25-.66 2.89-1.44z"/></svg>
+                    <span>macOS (MacBook, Mac mini, Mac Studio, iMac)</span>
+                  </div>
+                  <div class="code-snippet-box">
+                    <code id="settingsAgentCommandMac">curl -sSL {{ lan_url }}/agent.sh | bash</code>
+                    <button class="btn btn-secondary btn-sm" onclick="copyMacCommand()">Copy</button>
+                  </div>
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 5px; display: flex; align-items: center; gap: 6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span>Linux / Ubuntu (Laptops &amp; Desktops)</span></div>
+                  <div class="code-snippet-box">
+                    <code id="settingsAgentCommandLinux">curl -sSL {{ lan_url }}/agent.sh | sudo bash</code>
+                    <button class="btn btn-secondary btn-sm" onclick="copyLinuxCommand()">Copy</button>
+                  </div>
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                  <div style="font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 5px; display: flex; align-items: center; gap: 6px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.902-1.799"/></svg><span>Windows (PowerShell &mdash; Native Zero Install)</span></div>
+                  <div class="code-snippet-box">
+                    <code id="settingsAgentCommandWindows">irm {{ lan_url }}/agent.ps1 | iex</code>
+                    <button class="btn btn-secondary btn-sm" onclick="copyWindowsCommand()">Copy</button>
+                  </div>
+                </div>
+
+                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 10px; background: var(--bg-hover); padding: 8px 12px; border-radius: 6px;">
+                  Optional override flags: <code>--assigned "Employee Name" --department "Engineering" --location "Office 2"</code>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                  <span>System Environment & Storage</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="inspector-spec-row">
+                  <span class="inspector-label">Database Engine</span>
+                  <span class="inspector-val">SQLite 3 (Transactional WAL)</span>
+                </div>
+                <div class="inspector-spec-row">
+                  <span class="inspector-label">Database File</span>
+                  <span class="inspector-val code-badge">data/assets.db</span>
+                </div>
+                <div class="inspector-spec-row">
+                  <span class="inspector-label">AI Engine</span>
+                  <span class="inspector-val">Zero-API Offline Heuristic + Wiki</span>
+                </div>
+                <div class="inspector-spec-row">
+                  <span class="inspector-label">OCR Engine</span>
+                  <span class="inspector-val">RapidOCR (ONNX Runtime)</span>
+                </div>
+                <div class="inspector-spec-row">
+                  <span class="inspector-label">Barcode Engine</span>
+                  <span class="inspector-val">zxing-cpp + Html5Qrcode</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Remote Fleet Enrollment Modal -->
+  <div class="modal-backdrop" id="agentModal" onclick="if(event.target===this) closeAgentModal()">
+    <div class="modal-dialog" style="max-width: 620px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <h3 style="font-size: 16px; font-weight: 700; color: var(--text-main);">Remote Device Auto-Discovery Agent</h3>
+        <button class="btn btn-secondary btn-sm" onclick="closeAgentModal()" aria-label="Close modal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 13px; height: 13px;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.5;">
+        Run a single command on <strong>any laptop or desktop</strong> (Ubuntu/Linux or Windows) on your network. It extracts Motherboard, Processor, RAM, physical SSD/NVMe drives, Serial Number, Device Name, and User Name, and directly registers the asset into this database:
+      </p>
+
+      <!-- Target Network Switcher -->
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; padding: 10px 14px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+          <div style="font-size: 12px; font-weight: 600; color: #1e40af; display: flex; align-items: center; gap: 6px;">
+            <span style="display: inline-block; width: 8px; height: 8px; background: #22c55e; border-radius: 50%;"></span>
+            <span>Target Server: <strong id="currentServerLabel">{{ lan_url }}</strong></span>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button type="button" class="btn btn-sm btn-primary" id="btnModalLan" onclick="setServerTarget('lan')">LAN IP (<span id="modalLanIpLabel">{{ lan_ip }}</span>)</button>
+            <button type="button" class="btn btn-sm btn-secondary" id="btnModalLocal" onclick="setServerTarget('localhost')">Localhost (127.0.0.1)</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <div style="font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 5px; display: flex; align-items: center; gap: 6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.64-.78 1.08-1.86.96-2.95-1 .04-2.16.67-2.85 1.48-.61.71-1.14 1.83-1 2.91 1.12.09 2.25-.66 2.89-1.44z"/></svg>
+          <span>macOS (MacBook, Mac mini, Mac Studio, iMac)</span>
+        </div>
+        <div class="code-snippet-box">
+          <code id="agentCommandMac">curl -sSL {{ lan_url }}/agent.sh | bash</code>
+          <button class="btn btn-secondary btn-sm" onclick="copyMacCommand()">Copy</button>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <div style="font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 5px; display: flex; align-items: center; gap: 6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg><span>Linux / Ubuntu (Laptops &amp; Desktops)</span></div>
+        <div class="code-snippet-box">
+          <code id="agentCommandLinux">curl -sSL {{ lan_url }}/agent.sh | sudo bash</code>
+          <button class="btn btn-secondary btn-sm" onclick="copyLinuxCommand()">Copy</button>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <div style="font-size: 12px; font-weight: 600; color: var(--text-main); margin-bottom: 5px; display: flex; align-items: center; gap: 6px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.902-1.799"/></svg><span>Windows (Laptops &amp; Desktops &mdash; PowerShell)</span></div>
+        <div class="code-snippet-box">
+          <code id="agentCommandWindows">irm {{ lan_url }}/agent.ps1 | iex</code>
+          <button class="btn btn-secondary btn-sm" onclick="copyWindowsCommand()">Copy</button>
+        </div>
+      </div>
+
+      <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 18px; background: var(--bg-hover); padding: 8px 12px; border-radius: 6px; display: flex; align-items: flex-start; gap: 6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <div><strong>Zero Setup:</strong> The agent automatically identifies Motherboard, CPU Cores/Threads, Normalized RAM, Physical SSD models, Serial Tag, Device Hostname, and logged-in User Name.</div>
+      </div>
+
+      <div style="text-align: right;">
+        <button class="btn btn-secondary" onclick="closeAgentModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vendor local html5-qrcode with CDN fallback -->
+  <script src="/static/html5-qrcode.min.js"></script>
+  <script>
+    if (typeof Html5Qrcode === 'undefined') {
+      const s = document.createElement('script');
+      s.src = 'https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js';
+      document.head.appendChild(s);
+    }
+  </script>
+  <script src="/static/app.js?v=1.4"></script>
+</body>
+</html>

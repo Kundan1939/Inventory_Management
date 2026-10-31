@@ -1,0 +1,30 @@
+# Environment secrets and credentials
+.env
+.env.local
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pytest & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Databases (preserve sample/test templates)
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+!data/.gitkeep
+/tmp/test_assets.db
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# OS artifacts
+.DS_Store
+Thumbs.db
